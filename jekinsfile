@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from the repository
+                git 'https://github.com/your-repo/your-java-project.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Compile and build the project using Maven
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Run the tests using Maven
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                // Package the application using Maven
+                sh 'mvn package'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Archive the built artifacts
+            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+
+            // Publish the test results
+            junit '**/target/surefire-reports/*.xml'
+        }
+
+        success {
+            echo 'Build succeeded!'
+        }
+
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}
